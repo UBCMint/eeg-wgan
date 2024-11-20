@@ -1,7 +1,9 @@
 # Author: Joshua Park
 # Modified by: Akira Kudo
 # Created: 2024/11/04
-# Last Updated: 2024/11/18
+# Last Updated: 2024/11/19
+
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -35,18 +37,37 @@ def compute_psd(data, fs, nperseg=256, noverlap=None):
 def average_across_arrays(generated_data):
     return generated_data.mean(dim=0)
 
-def plot_everything(generated_data, gen_err, critic_err):
+def plot_everything(generated_data, gen_err, critic_err, 
+                    count : int, show_result : bool, save_result : bool):
+    """
+    :param int count: Training step count (GLOBAL?).
+    :param bool show_result: Whether to show the results.
+    :param bool save_result: Whether to save the results.
+    """
+    SAVEDIR = "../data/model/fig"
+    if not show_result:
+        print("To show results, set plot_everything, show_result=True.")
     generated_data = generated_data.detach()
 
     # plotting generated data
     values = generated_data[0, 0, :]
     plt.plot(values.tolist())
-    plt.show()
+    plt.title(f"Generated Data : Step {count}")
+    if save_result:
+        plt.savefig(os.path.join(
+            SAVEDIR, f"training_step_{count}_generated.png"))
+    if show_result: plt.show()
+    else: plt.close()
 
     # plotting PSD
     psd = get_fft_feature_train(generated_data.cpu())
+    plt.title(f"PSD : Step {count}")
     plt.plot(psd[0,0])
-    plt.show()
+    if save_result:
+        plt.savefig(os.path.join(
+            SAVEDIR, f"training_step_{count}_PSD.png"))
+    if show_result: plt.show()
+    else: plt.close()
 #     averaged_data = average_across_arrays(generated_data)
 #     freqs, psd = compute_psd(averaged_data, 160.0)
 #     plt.figure(figsize=(10, 6))  # Add this line to create a single figure
@@ -64,7 +85,11 @@ def plot_everything(generated_data, gen_err, critic_err):
     plt.xlabel("iterations")
     plt.ylabel("Loss")
     plt.legend()
-    plt.show()
+    if save_result:
+        plt.savefig(os.path.join(
+            SAVEDIR, f"training_step_{count}_GenDiscLoss.png"))
+    if show_result: plt.show()
+    else: plt.close()
 
 
 def get_fft_feature_train(data, nperseg=256, noverlap=128, channels=64):

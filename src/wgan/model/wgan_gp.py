@@ -1,7 +1,7 @@
 # Author: Joshua Park
 # Modified by: Akira Kudo
 # Created: 2024/11/01
-# Last Updated: 2024/11/19
+# Last Updated: 2024/11/20
 
 """
 Base class implementation of WGAN-GP.
@@ -14,7 +14,7 @@ import torch.nn as nn
 from wgan.model.base_model import BaseModel
 from wgan.model.loss import hinge_loss_dis, hinge_loss_gen, minimax_loss_dis, minimax_loss_gen, ns_loss_gen, wasserstein_loss_dis, wasserstein_loss_gen
 from wgan.model.residual_block import DBlock, GBlock
-from wgan.utils.visualize_psd_new import plot_everything
+from wgan.utils.visualize_psd import plot_everything
 
 """
 Implementation of Base GAN models.
@@ -665,8 +665,8 @@ class Discriminator(WGANGPBaseDiscriminator):
         if (self.count != 0 and self.count % 500 == 0):
             print(errD_total.item(), 'disc')
         if (self.count % 5000 == 0):
-            plot_everything(fake_signals, netG.errG_array, self.errD_array)
-            print("IF YOU WANT TO PLOT RESULTS, GO INTO wgan_gp.py AND REWRITE A LINE!") # AKIRA CHANGE
+            plot_everything(fake_signals, netG.errG_array, self.errD_array, 
+                            self.count, show_result=False, save_result=True)
         self.count += 1
 
         return log_data
